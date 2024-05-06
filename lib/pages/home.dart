@@ -133,7 +133,7 @@ class _HomeState extends State<Home> {
                           ],
                         ),
                         child: Text(
-                          'Stop Line: $selectedBusStop',
+                          'Bus Stop: $selectedBusStop',
                           style: const TextStyle(
                             color: Colors.white,
                           ),
@@ -166,8 +166,10 @@ class _HomeState extends State<Home> {
                             double.parse(location[2]),
                           ),
                           child: GestureDetector(
-                            child: const Icon(Icons.location_on,
-                                color: Colors.red),
+                            child: const Icon(
+                              Icons.location_on,
+                              color: Colors.red,
+                            ),
                             onTap: () {
                               setState(() {
                                 selectedBusStop = location[0];

@@ -1,4 +1,4 @@
-package com.denizozaltay.iett_where_is_my_bus
+package com.denizozaltay.bustrackistanbul
 
 import io.flutter.embedding.android.FlutterActivity
 
