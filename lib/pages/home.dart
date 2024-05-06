@@ -17,6 +17,7 @@ class _HomeState extends State<Home> {
 
   TextEditingController busCodeController = TextEditingController();
   TextEditingController directionController = TextEditingController();
+  MapController mapController = MapController();
 
   Future<List<List<dynamic>>>? busStopsFuture;
   Future<List<List<dynamic>>>? busLocationsFuture;
@@ -76,7 +77,17 @@ class _HomeState extends State<Home> {
       });
     } catch (e) {
       if (e is PermissionDeniedException) {
-        print('Permission denied');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Location permission denied"),
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: () => _getCurrentLocation(),
+              ),
+            ),
+          );
+        }
       }
     }
   }
@@ -90,6 +101,7 @@ class _HomeState extends State<Home> {
     } else {
       return Scaffold(
         body: FlutterMap(
+          mapController: mapController,
           options: MapOptions(
             initialCenter: currentLocation!,
             initialZoom: 12.6,
@@ -101,10 +113,10 @@ class _HomeState extends State<Home> {
             if (selectedBusStop != null)
               Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.only(top: 35.0),
                       child: Container(
                         padding: const EdgeInsets.all(8.0),
                         margin: const EdgeInsets.all(16.0),
@@ -226,6 +238,11 @@ class _HomeState extends State<Home> {
                       busCodeController.text, directionController.text);
                 });
               },
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.location_on),
+              label: 'Get Current Location',
+              onTap: () => mapController.move(currentLocation!, 12.6),
             ),
           ],
         ),
