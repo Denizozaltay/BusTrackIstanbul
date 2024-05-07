@@ -110,6 +110,15 @@ class _HomeState extends State<Home> {
             TileLayer(
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
             ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                    width: 80.0,
+                    height: 80.0,
+                    point: currentLocation!,
+                    child: const Icon(Icons.location_on, color: Colors.green)),
+              ],
+            ),
             if (selectedBusStop != null)
               Center(
                 child: Column(
@@ -244,7 +253,12 @@ class _HomeState extends State<Home> {
             SpeedDialChild(
               child: const Icon(Icons.location_on),
               label: 'Get Current Location',
-              onTap: () => mapController.move(currentLocation!, 12.6),
+              onTap: () {
+                setState(() {
+                  _getCurrentLocation();
+                  mapController.move(currentLocation!, 13.6);
+                });
+              },
             ),
           ],
         ),
