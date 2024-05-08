@@ -1,8 +1,9 @@
-import 'package:iett_where_is_my_bus/services/iett.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:iett_where_is_my_bus/variables/other.dart';
+import 'package:iett_where_is_my_bus/variables/controller.dart';
 import 'package:latlong2/latlong.dart';
 
 class Home extends StatefulWidget {
@@ -13,19 +14,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  LatLng? currentLocation;
-
-  TextEditingController busCodeController = TextEditingController();
-  TextEditingController directionController = TextEditingController();
-  MapController mapController = MapController();
-
-  Future<List<List<dynamic>>>? busStopsFuture;
-  Future<List<List<dynamic>>>? busLocationsFuture;
-
-  IETT iett = IETT();
-
-  String? selectedBusStop;
-
   @override
   void initState() {
     super.initState();
