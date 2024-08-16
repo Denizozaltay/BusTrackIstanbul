@@ -22,36 +22,70 @@ class _HomeState extends State<Home> {
 
   void openBusSelectionBox() {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                      controller: busCodeController,
-                      decoration: const InputDecoration(
-                          labelText: "Bus", hintText: "e.g. 50D")),
-                  TextField(
-                      controller: directionController,
-                      decoration: const InputDecoration(
-                          labelText: "Direction", hintText: "e.g. G or D"))
-                ],
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                controller: busCodeController,
+                decoration: const InputDecoration(
+                  labelText: "Bus",
+                  hintText: "e.g. 50D",
+                  border: OutlineInputBorder(),
+                ),
               ),
-              actions: [
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        busStopsFuture = iett.getLineStops(
-                            busCodeController.text, directionController.text);
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: DropdownButtonFormField<String>(
+                value: directionController.text.isEmpty
+                    ? "departure"
+                    : directionController.text,
+                decoration: const InputDecoration(
+                  labelText: "Direction",
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: "departure",
+                    child: Text("Departure"),
+                  ),
+                  DropdownMenuItem(
+                    value: "return",
+                    child: Text("Return"),
+                  ),
+                ],
+                onChanged: (String? newValue) {
+                  setState(() {
+                    directionController.text = newValue!;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                busStopsFuture = iett.getLineStops(busCodeController.text,
+                    directionController.text == "departure" ? "G" : "D");
 
-                        busLocationsFuture = iett.getBusLocations(
-                            busCodeController.text, directionController.text);
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Select"))
-              ],
-            ));
+                busLocationsFuture = iett.getBusLocations(
+                    busCodeController.text,
+                    directionController.text == "departure" ? "G" : "D");
+              });
+              Navigator.pop(context);
+            },
+            child: const Text("Select"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _getCurrentLocation() async {
@@ -118,7 +152,7 @@ class _HomeState extends State<Home> {
                         padding: const EdgeInsets.all(8.0),
                         margin: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: Colors.blueAccent,
                           borderRadius: BorderRadius.circular(10.0),
                           boxShadow: [
                             BoxShadow(
@@ -234,7 +268,8 @@ class _HomeState extends State<Home> {
               onTap: () {
                 setState(() {
                   busLocationsFuture = iett.getBusLocations(
-                      busCodeController.text, directionController.text);
+                      busCodeController.text,
+                      directionController.text == "departure" ? "G" : "D");
                 });
               },
             ),
