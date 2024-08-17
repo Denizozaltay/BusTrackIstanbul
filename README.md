@@ -1,4 +1,3 @@
 # BusTrack Istanbul
 
-This project is a simple bus tracking application that shows the stops and locations of buses using the web service provided by IETT.
-
+BusTrack Istanbul is a mobile app that tracks Istanbul buses in real-time using IETT's live data. Users can select a bus line, choose the direction (departure or return), and view buses marked in blue and stops in red on a detailed map. By tapping on stop markers, users can see the stop names. The app also allows tracking of the user's current location, marked with a green icon, and offers the ability to refresh it at any time. BusTrack Istanbul streamlines urban transportation, providing a more efficient way to navigate the city.
