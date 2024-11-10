@@ -4,97 +4,103 @@ import 'package:xml2json/xml2json.dart';
 import 'dart:convert';
 
 class IETT {
-  Future<List<List>> getLineStops(String lineCode, String direction) async {
-    var headers = {'Content-Type': 'text/xml; charset=utf-8'};
-    var envelope = '''
-  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
-      <soapenv:Header/>
-    <soapenv:Body>
-      <tem:DurakDetay_GYY>
-        <tem:hat_kodu>$lineCode</tem:hat_kodu>
-      </tem:DurakDetay_GYY>
-    </soapenv:Body>
-  </soapenv:Envelope>
-  ''';
+  static const Map<String, String> _headers = {
+    'Content-Type': 'text/xml; charset=utf-8'
+  };
 
-    var response = await http.post(
+  Future<List<List<dynamic>>> getLineStops(
+      String lineCode, String direction) async {
+    final envelope = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <tem:DurakDetay_GYY>
+            <tem:hat_kodu>$lineCode</tem:hat_kodu>
+          </tem:DurakDetay_GYY>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
+
+    final response = await http.post(
       Uri.parse('https://api.ibb.gov.tr/iett/ibb/ibb.asmx?wsdl'),
-      headers: headers,
+      headers: _headers,
       body: envelope,
     );
 
-    var document = xml.XmlDocument.parse(response.body);
-    var transformer = Xml2Json();
+    final document = xml.XmlDocument.parse(response.body);
+    final transformer = Xml2Json();
     transformer.parse(document.toXmlString());
 
-    var json = transformer.toParker();
-    var map = jsonDecode(json);
+    final jsonMap = jsonDecode(transformer.toParker());
 
-    List<dynamic> tables = map['soap:Envelope']['soap:Body']
-            ['DurakDetay_GYYResponse']['DurakDetay_GYYResult']['NewDataSet']
-        ['Table'];
+    final tables = jsonMap['soap:Envelope']?['soap:Body']
+            ?['DurakDetay_GYYResponse']?['DurakDetay_GYYResult']?['NewDataSet']
+        ?['Table'];
 
-    List<dynamic> filteredTables = [];
-    for (var table in tables) {
-      if (table['YON'] == direction) {
-        filteredTables.add(table);
-      }
+    if (tables == null) {
+      return [];
     }
 
-    List<List<dynamic>> stops = [];
-    for (var table in filteredTables) {
-      stops.add([
-        table['DURAKADI'],
-        table['YKOORDINATI'],
-        table['XKOORDINATI'],
-      ]);
-    }
+    final tableList = tables is List<dynamic> ? tables : [tables];
+
+    final stops = tableList
+        .where((table) => table['YON'] == direction)
+        .map<List<dynamic>>((table) => [
+              table['DURAKADI'],
+              table['YKOORDINATI'],
+              table['XKOORDINATI'],
+            ])
+        .toList();
 
     return stops;
   }
 
   Future<List<List<String>>> getBusLocations(
       String lineCode, String direction) async {
-    var headers = {'Content-Type': 'text/xml; charset=utf-8'};
-    var envelope = '''
-    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
-      <soapenv:Header/>
-      <soapenv:Body>
-        <tem:GetHatOtoKonum_json>
-          <tem:HatKodu>$lineCode</tem:HatKodu>
-        </tem:GetHatOtoKonum_json>
-      </soapenv:Body>
-    </soapenv:Envelope>
-  ''';
+    final envelope = '''
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <tem:GetHatOtoKonum_json>
+            <tem:HatKodu>$lineCode</tem:HatKodu>
+          </tem:GetHatOtoKonum_json>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    ''';
 
-    var response = await http.post(
+    final response = await http.post(
       Uri.parse(
           'https://api.ibb.gov.tr/iett/FiloDurum/SeferGerceklesme.asmx?wsdl'),
-      headers: headers,
+      headers: _headers,
       body: envelope,
     );
 
-    var transformer = Xml2Json();
+    final transformer = Xml2Json();
     transformer.parse(response.body);
-    var json = transformer.toParker();
-    var data = jsonDecode(json);
+    final jsonMap = jsonDecode(transformer.toParker());
 
-    var locationsJson = data['soap:Envelope']['soap:Body']
-        ['GetHatOtoKonum_jsonResponse']['GetHatOtoKonum_jsonResult'];
-    var locations = jsonDecode(locationsJson);
+    final locationsJson = jsonMap['soap:Envelope']?['soap:Body']
+        ?['GetHatOtoKonum_jsonResponse']?['GetHatOtoKonum_jsonResult'];
 
-    List<List<String>> busLocationsList = [];
-    for (var location in locations) {
-      var guzergahKoduParts = location['guzergahkodu'].split('_');
-      if (guzergahKoduParts[1] == direction) {
-        busLocationsList.add([
-          location['kapino'],
-          location['enlem'].toString(),
-          location['boylam'].toString()
-        ]);
-      }
+    if (locationsJson == null) {
+      return [];
     }
 
-    return busLocationsList;
+    final locations = jsonDecode(locationsJson);
+    final locationList = locations is List<dynamic> ? locations : [locations];
+
+    final busLocations = locationList
+        .where((location) {
+          final parts = location['guzergahkodu']?.split('_') ?? [];
+          return parts.length > 1 && parts[1] == direction;
+        })
+        .map<List<String>>((location) => [
+              location['kapino']?.toString() ?? '',
+              location['enlem']?.toString() ?? '',
+              location['boylam']?.toString() ?? '',
+            ])
+        .toList();
+
+    return busLocations;
   }
 }
