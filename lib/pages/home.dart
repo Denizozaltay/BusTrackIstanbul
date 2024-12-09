@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:iett_where_is_my_bus/services/iett.dart';
+import 'package:bustrackistanbul/services/iett.dart';
 import 'package:latlong2/latlong.dart';
 
 class Home extends StatefulWidget {

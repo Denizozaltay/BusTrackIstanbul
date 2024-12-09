@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iett_where_is_my_bus/pages/home.dart';
+import 'package:bustrackistanbul/pages/home.dart';
 
 void main() {
   runApp(const MyApp());
